@@ -1,0 +1,14 @@
+root = true
+
+[*.cs]
+# CA1848 asks for source-generated LoggerMessage delegates. The log calls are one line per reporting interval
+# (30 seconds by default) in MetricsReporter and one line per posted activity in ActivityEndpoint, at a few requests
+# a second, which does not justify a generated delegate.
+dotnet_diagnostic.CA1848.severity = none
+
+[IHub.Statements.IntegrationTests/**.cs]
+# CA1707 forbids underscores in member names; test names follow Method_WhenCondition_Outcome on purpose.
+dotnet_diagnostic.CA1707.severity = none
+# CA1861 wants constant arrays hoisted to static readonly fields. Each test runs once, and the expected values
+# read better inline in the assertion.
+dotnet_diagnostic.CA1861.severity = none

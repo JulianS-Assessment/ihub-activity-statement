@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: statements
+      # Throwaway credential for the local container, kept here for simplicity. Never for production:
+      # there the stopgap would be a gitignored .env with a committed .env.example (SOLUTION.md, Task 3 has the plan).
+      POSTGRES_PASSWORD: statements
+      POSTGRES_DB: statements
+    volumes:
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U statements -d statements"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+  api:
+    build:
+      context: .
+      target: runtime
+    # Npgsql defaults GSS Encryption Mode to Prefer and probes for libgssapi on every connect; the aspnet
+    # image ships none, so each connect printed "Cannot load library". The local database never uses Kerberos.
+    environment:
+      ConnectionStrings__Statements: Host=db;Username=statements;Password=statements;Database=statements;GSS Encryption Mode=Disable
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  tests:
+    build:
+      context: .
+      target: tests
+    environment:
+      ConnectionStrings__Statements: Host=db;Username=statements;Password=statements;Database=statements;GSS Encryption Mode=Disable
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: [test]
+
+volumes:
+  db-data:

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="IHub.Statements.Api/IHub.Statements.Api.csproj" />
+  <Project Path="IHub.Statements.IntegrationTests/IHub.Statements.IntegrationTests.csproj" />
+</Solution>
